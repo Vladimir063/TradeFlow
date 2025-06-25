@@ -1,0 +1,134 @@
+m@startuml
+skinparam sequence {
+  ArrowColor #3366cc
+  ActorBorderColor black
+  LifeLineBorderColor #999999
+  LifeLineBackgroundColor #eeeeee
+  ParticipantBorderColor #666666
+  ParticipantBackgroundColor #f9f9f9
+  NoteBackgroundColor #ffffcc
+}
+
+actor Пользователь
+
+participant "Web UI" as UI
+participant "Auth & User Service" as Auth
+participant "Order Service" as Order
+participant "PostgreSQL (Orders)" as PG_Orders
+participant "Kafka Event Bus" as Kafka
+participant "Saga Orchestrator" as Orchestrator
+participant "Funds Service" as Funds
+participant "PostgreSQL (Funds)" as PG_Funds
+participant "Trade Execution Service" as Trade
+participant "MongoDB (Trades)" as MDB_Trades
+participant "Market Data Service" as MarketData
+participant "Redis (Quotes Cache)" as Redis
+participant "Portfolio Service" as Portfolio
+participant "PostgreSQL (Portfolio)" as PG_Portfolio
+participant "Notification Service" as Notify
+participant "MongoDB (Audit Logs)" as MDB_Audit
+
+== Авторизация ==
+Пользователь -> UI : Ввод логина и пароля
+note right of UI : Фронтенд отправляет данные для авторизации
+
+UI -> Auth : Запрос на авторизацию
+note right of Auth : Keycloak проверяет логин/пароль и генерирует токены
+
+Auth --> UI : JWT-токен
+note right of UI : UI сохраняет токен для последующих запросов
+
+== Пользователь создаёт ордер ==
+Пользователь -> UI : Запрос на покупку 10 акций AAPL
+note right of Пользователь : Клиент хочет купить акции на свои средства
+
+UI -> Order : POST /orders {symbol=AAPL, qty=10, side=BUY}
+note right of Order : Order Service валидирует и сохраняет ордер
+
+Order -> PG_Orders : Сохранить ордер в БД
+note right of PG_Orders : Новый ордер попадает в PostgreSQL
+
+Order -> Kafka : Опубликовать событие "OrderCreated"
+note right of Kafka : Kafka передаёт событие подписчикам — инициирует бизнес-сценарий
+
+Order --> UI : Ответ 202 — Ордер принят
+
+== Saga Orchestration: начало транзакции ==
+Kafka -> Orchestrator : Событие "OrderCreated"
+note right of Orchestrator : Saga Orchestrator начинает цепочку действий
+
+== Шаг 1: Резервация средств ==
+Orchestrator -> Funds : Зарезервировать средства пользователя
+note right of Funds : Проверка доступных средств и блокировка необходимой суммы
+
+Funds -> PG_Funds : UPDATE баланса (блокировка средств)
+note right of PG_Funds : Информация о резерве фиксируется в PostgreSQL
+
+Funds -> Kafka : Событие "PaymentReserved"
+note right of Kafka : Потверждение резерва публикуется
+
+Funds --> Orchestrator : Средства успешно зарезервированы
+
+
+
+== Шаг 2: Получение котировки и исполнение сделки ==
+
+Orchestrator -> Trade : Команда на исполнение ордера
+note right of Trade : Trade Service запускает matching engine
+
+Trade -> Redis : Запрос текущей цены AAPL из кэша
+note right of Redis : Redis содержит актуальную цену, обновлённую Market Data Service
+
+Redis --> Trade : Цена AAPL = $150
+
+== Шаг 2.1: Проверка наличия противоположного ордера ==
+note right of Trade : Trade Execution Service инициирует поиск противоположного ордера.
+note right of Trade : Ищется ордер на продажу (для покупателя), на противоположную сторону сделки.
+Trade -> PG_Orders : Проверка наличия противоположного ордера (по символу и стороне сделки)
+note right of PG_Orders : Ищем ордер на продажу AAPL
+
+alt Противоположный ордер найден
+    note right of Trade : Ордер найден — переходим к исполнению сделки
+else Противоположный ордер не найден
+    note right of Trade : Нет противоположного ордера — ордер остаётся в очереди
+end
+
+== Шаг 2.2: Исполнение сделки ==
+alt Ордер исполнен
+    note right of Trade : Условия совпадают — сделка будет исполнена
+    Trade -> MDB_Trades : Сохранить исполнение сделки в MongoDB
+    note right of MDB_Trades : Логируем сделку (кто, что, когда, по какой цене)
+    Trade -> Kafka : Событие "TradeExecuted"
+    note right of Kafka : Уведомляем остальные сервисы о факте сделки
+    Trade --> Orchestrator : Сделка исполнена
+else Ордер не исполнен
+    note right of Trade : Ордер не исполнен — ждём совпадения
+end
+
+== Шаг 3: Обновление портфеля ==
+Orchestrator -> Portfolio : Добавить 10 акций AAPL в портфель
+note right of Portfolio : Portfolio Service отражает изменения в активах пользователя
+
+Portfolio -> PG_Portfolio : INSERT/UPDATE позиции в БД
+note right of PG_Portfolio : PostgreSQL хранит текущие активы пользователя
+
+Portfolio -> Kafka : Событие "PortfolioUpdated"
+note right of Kafka : Подтверждение об обновлении портфеля
+
+Portfolio --> Orchestrator : Обновление завершено
+
+== Завершение саги ==
+Orchestrator -> Kafka : Событие "SagaCompleted"
+note right of Orchestrator : Вся цепочка завершена успешно
+
+== Уведомление пользователя ==
+Kafka -> Notify : Событие "TradeExecuted"
+note right of Notify : Notification Service подписан на важные события
+
+Notify -> MDB_Audit : Сохранить лог в MongoDB
+note right of MDB_Audit : Аудит всех торговых действий
+
+Notify -> Пользователь : Email / WebSocket уведомление
+note right of Пользователь : Уведомление о покупке акции
+
+@enduml

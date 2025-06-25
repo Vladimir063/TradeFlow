@@ -1,0 +1,1 @@
+HSET 'PriceQuote:7f3e9a2d-d4bb-4cd9-9b25-79e85d62a50f' companyId  'Apple' Company 'doe2' bid '100' ask '110'

@@ -1,0 +1,142 @@
+services:
+  order-service-db:
+    image: postgres:latest
+    container_name: order-service-db
+    environment:
+      POSTGRES_DB: order
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - '5432:5432'
+    restart: unless-stopped
+    volumes:
+      - order_db_data:/var/lib/postgresql/data
+      - ./init/order-init.sql:/docker-entrypoint-initdb.d/init.sql
+  funds-service-db:
+    image: postgres:latest
+    container_name: funds-service-db
+    environment:
+      POSTGRES_DB: funds
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - '5433:5432'
+    restart: unless-stopped
+    volumes:
+      - funds_db_data:/var/lib/postgresql/data
+      - ./init/funds-init.sql:/docker-entrypoint-initdb.d/init.sql
+  portfolio-service-db:
+    image: postgres:latest
+    container_name: portfolio-service-db
+    environment:
+      POSTGRES_DB: portfolio
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - '5434:5432'
+    restart: unless-stopped
+    volumes:
+      - portfolio_db_data:/var/lib/postgresql/data
+      - ./init/portfolio-init.sql:/docker-entrypoint-initdb.d/init.sql
+  trade-execution-service-db:
+    image: postgres:latest
+    container_name: trade-execution-service-db
+    environment:
+      POSTGRES_DB: trade
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - '5435:5432'
+    restart: unless-stopped
+    volumes:
+      - trade_execution_db_data:/var/lib/postgresql/data
+      - ./init/trade-execution-init.sql:/docker-entrypoint-initdb.d/init.sql
+  company-service-db:
+    image: postgres:latest
+    container_name: company-service-db
+    environment:
+      POSTGRES_DB: company
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - '5436:5432'
+    restart: unless-stopped
+    volumes:
+      - company_db_data:/var/lib/postgresql/data
+      - ./init/company-init.sql:/docker-entrypoint-initdb.d/init.sql
+  user-service-db:
+    image: postgres:latest
+    container_name: user-service-db
+    environment:
+      POSTGRES_DB: users
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports:
+      - '5476:5432'
+    restart: unless-stopped
+    volumes:
+      - user_db_data:/var/lib/postgresql/data
+      - ./init/user-init.sql:/docker-entrypoint-initdb.d/init.sql
+  kafka:
+    image: apache/kafka:latest
+    container_name: kafka
+    tmpfs:
+      - /var/lib/kafka/data
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://0.0.0.0:9092,CONTROLLER://0.0.0.0:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@localhost:9093
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_NUM_PARTITIONS: 3
+    ports:
+      - "9092:9092"
+  redis:
+    image: redis:latest
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - /path/to/local/dаta:/root/redis
+      - /path/to/local/redis.conf:/usr/local/etc/redis/redis.conf
+    environment:
+      - REDIS_PASSWORD=redis
+      - REDIS_PORT=6379
+      - REDIS_DATABASES=16
+
+  mongo:
+    image: mongo
+    restart: always
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: root
+      MONGO_INITDB_ROOT_PASSWORD: example
+      MONGO_INITDB_DATABASE: notification
+    ports:
+      - "27017:27017"
+  mongo-express:
+    image: mongo-express
+    restart: always
+    ports:
+      - "8585:8081"
+    environment:
+      ME_CONFIG_MONGODB_ADMINUSERNAME: root
+      ME_CONFIG_MONGODB_ADMINPASSWORD: example
+      ME_CONFIG_MONGODB_URL: mongodb://root:example@mongo:27017/
+      ME_CONFIG_BASICAUTH: false
+
+networks:
+  app-tier:
+    driver: bridge
+volumes:
+  order_db_data:
+  funds_db_data:
+  portfolio_db_data:
+  trade_execution_db_data:
+  company_db_data:
+  user_db_data:

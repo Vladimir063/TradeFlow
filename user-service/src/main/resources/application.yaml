@@ -1,0 +1,33 @@
+spring:
+  application:
+    name: user-service
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.UUIDSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: trade
+      enable-auto-commit: false
+      key-deserializer: org.apache.kafka.common.serialization.UUIDDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: com.tradeflow.*
+        spring.json.use.type.headers: true
+    listener:
+      ack-mode: RECORD
+
+
+  datasource:
+    url: jdbc:postgresql://localhost:5476/users?currentSchema=your_schema_name
+    username: postgres
+    password: postgres
+  jpa:
+    hibernate:
+      ddl-auto: none     # или ваша стратегия
+    properties:
+      hibernate:
+        default_schema: public
+
+server:
+  port: 8095

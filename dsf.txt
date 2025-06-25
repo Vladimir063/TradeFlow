@@ -1,0 +1,8 @@
+{
+    "userId": "6135c55f-09ed-4309-8ae4-1760c1fa6acb",
+    "companyId": "2135c55f-09ed-4309-8ae4-1760c1fa6acb",
+    "side" : "BUY",
+    "type" : "LIMIT",
+    "quantity" : 5,
+    "price" : 200
+}

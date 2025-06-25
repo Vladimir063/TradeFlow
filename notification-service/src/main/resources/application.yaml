@@ -1,0 +1,28 @@
+spring:
+  application:
+    name: notification-service
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.UUIDSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: notification
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.UUIDDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: com.tradeflow.*
+        spring.json.use.type.headers: true
+
+  data:
+    mongodb:
+      host: localhost
+      port: 27017
+      database: notification
+      username: root
+      password: example
+      authentication-database: admin
+server:
+  port: 8087
+

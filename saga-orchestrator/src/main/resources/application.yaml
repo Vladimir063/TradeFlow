@@ -1,0 +1,20 @@
+spring:
+  application:
+    name: saga-orchestrator
+
+  kafka:
+    bootstrap-servers: localhost:9092
+    producer:
+      key-serializer: org.apache.kafka.common.serialization.UUIDSerializer
+      value-serializer: org.springframework.kafka.support.serializer.JsonSerializer
+    consumer:
+      group-id: saga
+      auto-offset-reset: earliest
+      key-deserializer: org.apache.kafka.common.serialization.UUIDDeserializer
+      value-deserializer: org.springframework.kafka.support.serializer.JsonDeserializer
+      properties:
+        spring.json.trusted.packages: com.tradeflow.*
+        spring.json.use.type.headers: true
+
+server:
+  port: 8089

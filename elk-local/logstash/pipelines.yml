@@ -1,0 +1,2 @@
+- pipeline.id: micro-trade-pipeline
+  path.config: "/usr/share/logstash/pipeline/logstash.conf"
