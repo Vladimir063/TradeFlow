@@ -15,6 +15,8 @@ spring:
         spring.json.trusted.packages: com.tradeflow.*
         spring.json.use.type.headers: true
 
+
+
 #  datasource:
 #    url: jdbc:postgresql://localhost:5436/company?currentSchema=your_schema_name
 #    username: postgres
@@ -34,7 +36,10 @@ spring:
       port: 6379
       password: redis
       connect-timeout:  60000
-
+management:
+  tracing:
+    sampling:
+      probability: 1.0
 
 server:
   port: 8088
