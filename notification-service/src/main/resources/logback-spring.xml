@@ -9,10 +9,10 @@
 
     <!-- Аппендер для отправки в Logstash по TCP -->
     <appender name="LOGSTASH" class="net.logstash.logback.appender.LogstashTcpSocketAppender">
-        <destination>localhost:5000</destination>
+        <destination>host.docker.internal:5000</destination>
         <encoder class="net.logstash.logback.encoder.LogstashEncoder">
             <customFields>
-                {"service.name":"funds-service"}
+                {"service.name":"notifications-service"}
             </customFields>
         </encoder>
     </appender>

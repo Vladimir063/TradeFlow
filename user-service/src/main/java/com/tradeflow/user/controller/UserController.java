@@ -43,4 +43,15 @@ public class UserController {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
     }
+
+    @GetMapping("/login")
+    public String login() {
+        return "login";  // вернёт templates/login.html (мы покажем Vue ниже)
+    }
+
+    @GetMapping("/company")
+    public String company() {
+        return "forward:/index.html";
+        // отдаём скомпилированный Vue SPA; Vue Router покажет нужный view
+    }
 }
