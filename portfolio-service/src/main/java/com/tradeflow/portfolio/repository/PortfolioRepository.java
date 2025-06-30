@@ -11,4 +11,6 @@ import java.util.UUID;
 public interface PortfolioRepository  extends JpaRepository<Portfolio, UUID> {
 
     Optional<Portfolio> findByUserIdAndCompanyId(UUID userId, UUID companyId);
+
+    Optional<Portfolio> findByUserId(UUID userId);
 }

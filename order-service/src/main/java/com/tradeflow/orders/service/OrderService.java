@@ -3,7 +3,7 @@ package com.tradeflow.orders.service;
 
 import com.tradeflow.event.CompleteOrderCommand;
 import com.tradeflow.orders.dto.CreatedOrder;
-import com.tradeflow.orders.dto.OrderDto;
+import com.tradeflow.event.OrderDto;
 import com.tradeflow.event.OrderCreatedEvent;
 
 import java.util.List;
@@ -18,4 +18,6 @@ public interface OrderService {
     OrderDto getOrderDtoById(UUID orderId);
 
     void orderCompleted(CompleteOrderCommand completeOrderCommand);
+
+    List<OrderDto> getOrderByUserId(UUID userId);
 }

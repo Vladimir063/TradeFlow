@@ -5,14 +5,13 @@ CREATE TABLE IF NOT EXISTS users (
                                      password        VARCHAR(100) NOT NULL,
                                      first_name VARCHAR(100) NOT NULL,
                                      last_name VARCHAR(100) NOT NULL,
-                                     enabled BOOLEAN  NOT NULL,
-                                     available_money int4 NOT NULL
+                                     enabled BOOLEAN  NOT NULL
 );
 
 insert into public.users
-(user_id, username, password, first_name, last_name, enabled, available_money)
-values ('1b2bdb22-9fd3-4d23-bcd0-c8e8da4f33e5',  'petr', '1234','Petr',
-        'Petrov333', true,  40000);
+(user_id, username, password, first_name, last_name, enabled)
+values ('1b2bdb22-9fd3-4d23-bcd0-c8e8da4f33e5',  'petr', '2a$10$4cgaW25ZNtZFNQdy/izksuDcZ5ZIbKZJWHqM6PKhR0dORSPiDe6PW','Petr',
+        'Petrov333', true);
 
 
 CREATE TABLE roles (
@@ -29,3 +28,7 @@ CREATE TABLE user_roles (
                             role_id UUID NOT NULL REFERENCES roles(id) ON DELETE CASCADE,
                             PRIMARY KEY (user_id, role_id)
 );
+
+insert into public.user_roles
+(user_id, role_id)
+values ('1b2bdb22-9fd3-4d23-bcd0-c8e8da4f33e5', '1b2bdb22-9fd3-4d23-bcd0-c8e8da4f33e5');

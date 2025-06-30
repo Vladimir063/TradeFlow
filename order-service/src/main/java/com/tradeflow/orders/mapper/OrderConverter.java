@@ -4,7 +4,7 @@ import com.tradeflow.event.OrderCompletedEvent;
 import com.tradeflow.event.OrderCreatedEvent;
 import org.mapstruct.Mapper;
 import com.tradeflow.orders.dto.CreatedOrder;
-import com.tradeflow.orders.dto.OrderDto;
+import com.tradeflow.event.OrderDto;
 import com.tradeflow.orders.model.Order;
 import org.mapstruct.Mapping;
 

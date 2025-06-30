@@ -1,5 +1,6 @@
 package com.tradeflow.orders.service.impl;
 
+import com.tradeflow.company.api.event.CompanyDto;
 import com.tradeflow.event.CompleteOrderCommand;
 import com.tradeflow.event.OrderCompletedEvent;
 import com.tradeflow.event.OrderCreatedEvent;
@@ -7,15 +8,15 @@ import com.tradeflow.event.model.Status;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.slf4j.MDC;
 import org.springframework.stereotype.Service;
 import com.tradeflow.orders.dto.CreatedOrder;
-import com.tradeflow.orders.dto.OrderDto;
+import com.tradeflow.event.OrderDto;
 import com.tradeflow.orders.mapper.OrderConverter;
 import com.tradeflow.orders.model.Order;
 import com.tradeflow.orders.repository.OrderRepository;
 import com.tradeflow.orders.service.OrderEventProducer;
 import com.tradeflow.orders.service.OrderService;
+import org.springframework.web.client.RestTemplate;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -70,5 +71,19 @@ public class OrderServiceImpl implements OrderService {
         OrderCompletedEvent orderCompletedEvent = orderConverter.orderToOrderCompletedEvent(order);
         orderEventProducer.publishOrderCompletedEvent(orderCompletedEvent);
         log.info("Order completed event: {}", orderCompletedEvent);
+    }
+
+    @Override
+    public List<OrderDto> getOrderByUserId(UUID userId) {
+        List<Order> orders = orderRepository.findByUserId(userId);
+        RestTemplate restTemplate = new RestTemplate();
+        return orders.stream()
+                .map(order -> {
+                    OrderDto orderDto = orderConverter.entityToDto(order);
+                    CompanyDto companyDto = restTemplate.getForObject("http://localhost:8088/api/company/" + order.getCompanyId(), CompanyDto.class);
+                    orderDto.setCompanyName(companyDto.name());
+                    return orderDto;
+                })
+                .collect(Collectors.toList());
     }
 }

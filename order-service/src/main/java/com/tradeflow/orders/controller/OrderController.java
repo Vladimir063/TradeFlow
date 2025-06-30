@@ -4,7 +4,7 @@ import com.tradeflow.event.OrderCreatedEvent;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import com.tradeflow.orders.dto.CreatedOrder;
-import com.tradeflow.orders.dto.OrderDto;
+import com.tradeflow.event.OrderDto;
 import com.tradeflow.orders.service.OrderService;
 
 import java.util.List;
@@ -12,7 +12,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/order")
+@RequestMapping("/api/order")
 public class OrderController {
 
     private final OrderService orderService;
@@ -28,8 +28,8 @@ public class OrderController {
         return orderService.findByUserId(userId);
     }
 
-    @GetMapping()
-    public OrderDto findByOrder(@RequestParam UUID orderId) {
-        return orderService.getOrderDtoById(orderId);
+    @GetMapping("/user/{userId}")
+    public List<OrderDto> getOrderByUserId(@PathVariable UUID userId) {
+        return orderService.getOrderByUserId(userId);
     }
 }

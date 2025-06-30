@@ -5,6 +5,7 @@ import com.tradeflow.event.OrderCompletedEvent;
 import com.tradeflow.event.UserCreatedEvent;
 import com.tradeflow.event.kafka.Topics;
 import com.tradeflow.event.model.Side;
+import com.tradeflow.funds.api.AccountDto;
 import com.tradeflow.funds.mapper.FundsConverter;
 import com.tradeflow.funds.model.Account;
 import com.tradeflow.funds.repository.jpa.AccountRepository;
@@ -19,6 +20,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import java.util.Optional;
 import java.util.UUID;
 
 
@@ -66,8 +68,23 @@ public class ReserveFundsServiceImpl implements ReserveFundsService {
     public void handleUserCreatedEvent(UserCreatedEvent userCreatedEvent) {
         Account account = fundsConverter.userCreatedEventToAccount(userCreatedEvent);
         account.setReserved(0);
+        account.setAvailableMoney(0);
         accountRepository.save(account);
         log.info("Account updated after userCreatedEvent. UserCreatedEvent =  {}", userCreatedEvent );
+    }
+
+    @Override
+    public void addAvailableMoney(UUID userId, int amount) {
+        Account account = accountRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        account.setAvailableMoney(account.getAvailableMoney() + amount);
+    }
+
+    @Override
+    public AccountDto getAvailableMoney(UUID userId) {
+        Account account = accountRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        return fundsConverter.entityToDto(account);
     }
 
     private void tryReserve(Account account, Integer requiredAmount, ReserveFundsCommand cmd) {

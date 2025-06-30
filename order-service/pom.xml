@@ -30,7 +30,11 @@
             <version>1.0.0</version>
         </dependency>
 
-
+        <dependency>
+            <groupId>com.tradeflow</groupId>
+            <artifactId>company-service-api</artifactId>
+            <version>1.0.0</version>
+        </dependency>
     </dependencies>
 
 

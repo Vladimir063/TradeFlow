@@ -1,15 +1,12 @@
 package com.tradeflow.portfolio.service.impl;
 
 import com.tradeflow.event.model.Side;
-import com.tradeflow.portfolio.api.command.PortfolioReservedStockEvent;
-import com.tradeflow.portfolio.api.command.ReserveStockCommand;
+import com.tradeflow.portfolio.api.command.*;
 import com.tradeflow.portfolio.mapper.PortfolioMapper;
 import com.tradeflow.portfolio.model.Portfolio;
 import com.tradeflow.portfolio.repository.PortfolioRepository;
 import com.tradeflow.portfolio.service.PortfolioService;
 import com.tradeflow.event.kafka.Topics;
-import com.tradeflow.portfolio.api.command.PortfolioUpdatedEvent;
-import com.tradeflow.portfolio.api.command.UpdatePortfolioCommand;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -56,6 +53,13 @@ public class PortfolioServiceImpl implements PortfolioService {
             kafkaTemplateReservedEvent.send(Topics.PORTFOLIO_RESERVED_EVENTS, portfolioReservedStockEvent.orderId(), portfolioReservedStockEvent);
         }
         log.info("Резервирование акций для продажи успешно завершено");
+    }
+
+    @Override
+    public PortfolioDto getPortfolio(UUID userId) {
+        Portfolio portfolio = portfolioRepository.findByUserId(userId)
+                .orElseThrow(() -> new RuntimeException("Portfolio not found"));
+        return portfolioMapper.entityToDto(portfolio);
     }
 
     private void createNewPortfolio(UpdatePortfolioCommand updatePortfolioCommand) {

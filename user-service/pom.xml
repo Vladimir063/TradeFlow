@@ -29,7 +29,16 @@
             <artifactId>tradeflow-common</artifactId>
             <version>1.0.0</version>
         </dependency>
-
+        <dependency>
+            <groupId>com.tradeflow</groupId>
+            <artifactId>funds-service-api</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.tradeflow</groupId>
+            <artifactId>portfolio-service-api</artifactId>
+            <version>1.0.0</version>
+        </dependency>
 
     </dependencies>
 

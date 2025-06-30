@@ -13,7 +13,7 @@ import java.util.UUID;
 
 @RestController
 @RequiredArgsConstructor
-@RequestMapping("/users")
+@RequestMapping("/api/users")
 public class UserController {
 
     private final UserService userService;
@@ -23,9 +23,9 @@ public class UserController {
         return ResponseEntity.ok(userService.createUser(userCreateRequest));
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getUser(@PathVariable UUID id) {
-        return ResponseEntity.ok(userService.getUserById(id));
+    @GetMapping("/{name}")
+    public ResponseEntity<UserDto> getUserByUserName(@PathVariable String name) {
+        return ResponseEntity.ok(userService.getUserByUserName(name));
     }
 
     @GetMapping
@@ -42,16 +42,5 @@ public class UserController {
     public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
         userService.deleteUser(id);
         return ResponseEntity.noContent().build();
-    }
-
-    @GetMapping("/login")
-    public String login() {
-        return "login";  // вернёт templates/login.html (мы покажем Vue ниже)
-    }
-
-    @GetMapping("/company")
-    public String company() {
-        return "forward:/index.html";
-        // отдаём скомпилированный Vue SPA; Vue Router покажет нужный view
     }
 }

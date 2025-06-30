@@ -31,6 +31,11 @@ spring:
 
 server:
   port: 8095
+  servlet:
+    session:
+      cookie:
+        same-site: Lax
+        secure: false
 
 management:
   tracing:
@@ -41,3 +46,14 @@ management:
     web:
       exposure:
         include: health,info,prometheus,metrics
+
+
+logging:
+  level:
+    org:
+      springframework:
+        security: DEBUG
+
+jwt:
+  secret: MySuperSecretKeyThatIsAtLeast32BytesLong
+  expiration-seconds: 3600
