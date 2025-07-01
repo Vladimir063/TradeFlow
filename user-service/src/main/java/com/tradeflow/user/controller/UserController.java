@@ -19,20 +19,4 @@ public class UserController {
     public String getTest() {
         return "test";
     }
-
-//    @GetMapping("/{username}")
-//    public UserDto getUserInfo(@PathVariable String userName) {
-//        return userService.getUserInfo(userName);
-//    }
-
-    @GetMapping("/admin")
-    @PreAuthorize("hasRole('ADMIN')")
-    public String exampleAdmin() {
-        return "Hello, admin!";
-    }
-
-//    @GetMapping("/get-admin")
-//    public void getAdmin() {
-//        service.getAdmin();
-//    }
 }

@@ -20,7 +20,17 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          public-key-location: classpath:publickey.pem
+          issuer-uri:  http://localhost:8023/realms/myrealm
+      client:
+        registration:
+          keycloak: # или любое другое имя
+            client-id: user-service
+            client-secret: P7W0str1T1BrXagj85PwRqIwoO0AAyfp
+            authorization-grant-type: client_credentials
+            scope: openid
+        provider:
+          keycloak:
+            issuer-uri: http://localhost:8023/realms/myrealm
 
 
   datasource:
@@ -59,7 +69,3 @@ logging:
       springframework:
         security: DEBUG
 
-
-token:
-  signing:
-    key: 53A73E5F1C4E0A2D3B5F2D784E6A1B423D6F247D1F6E5C3A596D635A75327855

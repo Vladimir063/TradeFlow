@@ -18,8 +18,7 @@ import java.util.function.Function;
 
 @Service
 public class JwtService {
-    @Value("${token.signing.key}")
-    private String jwtSigningKey;
+
 
     /**
      * Извлечение имени пользователя из токена
@@ -123,7 +122,7 @@ public class JwtService {
      * @return ключ
      */
     private Key getSigningKey() {
-        byte[] keyBytes = Decoders.BASE64.decode(jwtSigningKey);
-        return Keys.hmacShaKeyFor(keyBytes);
+
+        return Keys.hmacShaKeyFor("keyBytes".getBytes());
     }
 }
