@@ -1,46 +1,38 @@
 package com.tradeflow.user.controller;
 
 
-import com.tradeflow.user.dto.UserCreateRequest;
 import com.tradeflow.user.dto.UserDto;
-import com.tradeflow.user.service.UserService;
+import com.tradeflow.user.service.impl.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.UUID;
-
 @RestController
-@RequiredArgsConstructor
 @RequestMapping("/api/users")
+@RequiredArgsConstructor
 public class UserController {
+
 
     private final UserService userService;
 
-    @PostMapping
-    public ResponseEntity<UserDto> createUser(@RequestBody UserCreateRequest userCreateRequest) {
-        return ResponseEntity.ok(userService.createUser(userCreateRequest));
+    @GetMapping("/test")
+    public String getTest() {
+        return "test";
     }
 
-    @GetMapping("/{name}")
-    public ResponseEntity<UserDto> getUserByUserName(@PathVariable String name) {
-        return ResponseEntity.ok(userService.getUserByUserName(name));
+//    @GetMapping("/{username}")
+//    public UserDto getUserInfo(@PathVariable String userName) {
+//        return userService.getUserInfo(userName);
+//    }
+
+    @GetMapping("/admin")
+    @PreAuthorize("hasRole('ADMIN')")
+    public String exampleAdmin() {
+        return "Hello, admin!";
     }
 
-    @GetMapping
-    public ResponseEntity<List<UserDto>> getAllUsers() {
-        return ResponseEntity.ok(userService.getAllUsers());
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<UserDto> updateUser(@PathVariable UUID id, @RequestBody UserDto userDto) {
-        return ResponseEntity.ok(userService.updateUser(id, userDto));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteUser(@PathVariable UUID id) {
-        userService.deleteUser(id);
-        return ResponseEntity.noContent().build();
-    }
+//    @GetMapping("/get-admin")
+//    public void getAdmin() {
+//        service.getAdmin();
+//    }
 }

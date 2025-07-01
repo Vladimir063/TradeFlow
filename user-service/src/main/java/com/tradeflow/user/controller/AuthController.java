@@ -1,8 +1,10 @@
 package com.tradeflow.user.controller;
 
-import com.tradeflow.user.configuration.JwtConfig;
+import com.tradeflow.user.dto.JwtAuthenticationResponse;
+import com.tradeflow.user.dto.SignInRequest;
+import com.tradeflow.user.dto.UserCreateRequest;
+import com.tradeflow.user.service.impl.AuthenticationService;
 import lombok.RequiredArgsConstructor;
-import lombok.Value;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -15,36 +17,21 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
-import java.time.Instant;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
 public class AuthController {
+    private final AuthenticationService authenticationService;
 
-    private final AuthenticationManager authManager;
-    private final JwtEncoder jwtEncoder;
-    private long expirationSeconds = 3600;
-    private final JwtConfig jwtConfig;
+    @PostMapping("/sign-up")
+    public JwtAuthenticationResponse signUp(@RequestBody UserCreateRequest request) {
+        return authenticationService.signUp(request);
+    }
 
-    @PostMapping("/login")
-    public ResponseEntity<Map<String,String>> login(@RequestBody Map<String,String> creds) {
-        Authentication auth = authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        creds.get("username"), creds.get("password")
-                )
-        );
-        // создаём клеймы
-        JwtClaimsSet claims = jwtConfig.buildClaims(auth.getName());
-        // генерим токен
-        String token = jwtEncoder.encode(
-                JwtEncoderParameters.from(claims)
-        ).getTokenValue();
-
-        return ResponseEntity.ok(Map.of(
-                "token", token,
-                "username", auth.getName()
-        ));
+    @PostMapping("/sign-in")
+    public JwtAuthenticationResponse signIn(@RequestBody SignInRequest request) {
+        return authenticationService.signIn(request);
     }
 }

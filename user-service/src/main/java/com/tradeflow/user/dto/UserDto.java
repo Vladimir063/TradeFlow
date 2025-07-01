@@ -16,11 +16,8 @@ import java.util.UUID;
 @NoArgsConstructor
 public class UserDto {
 
-
      private UUID userId;
      private String username;
-     private String firstName;
-     private String lastName;
      private AccountDto accountDto;
      private PortfolioDto portfolioDto;
      private List<OrderDto> ordersDto;
